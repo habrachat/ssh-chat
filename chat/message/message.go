@@ -260,6 +260,31 @@ func (m AnnounceMsg) String() string {
 	return fmt.Sprintf(" * %s", m.body)
 }
 
+// MOTDMsg is a MOTD message
+type MOTDMsg struct {
+	Msg
+}
+
+func NewMOTDMsg(body string) *MOTDMsg {
+	return &MOTDMsg{
+		Msg: Msg{
+			body:      body,
+			timestamp: time.Now(),
+		},
+	}
+}
+
+func (m MOTDMsg) Render(t *Theme) string {
+	if t == nil {
+		return m.String()
+	}
+	return t.ColorSys(m.String())
+}
+
+func (m MOTDMsg) String() string {
+	return fmt.Sprintf(" %s", m.body)
+}
+
 type CommandMsg struct {
 	PublicMsg
 	command string
