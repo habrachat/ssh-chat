@@ -128,7 +128,7 @@ func InitCommands(c *Commands) {
 				me = me[1:]
 			}
 
-			room.Send(message.NewEmoteMsg(me, msg.From()))
+			room.Send(message.NewEmoteMsg(me, msg.From(), msg.OriginalFrom()))
 			return nil
 		},
 	})
@@ -277,7 +277,7 @@ func InitCommands(c *Commands) {
 				me = fmt.Sprintf("slaps %s around a bit with a large trout.", strings.Join(args, " "))
 			}
 
-			room.Send(message.NewEmoteMsg(me, msg.From()))
+			room.Send(message.NewEmoteMsg(me, msg.From(), msg.OriginalFrom()))
 			return nil
 		},
 	})
@@ -285,7 +285,7 @@ func InitCommands(c *Commands) {
 	c.Add(Command{
 		Prefix: "/shrug",
 		Handler: func(room *Room, msg message.CommandMsg) error {
-			room.Send(message.NewEmoteMsg(`¯\_(ツ)_/¯`, msg.From()))
+			room.Send(message.NewEmoteMsg(`¯\_(ツ)_/¯`, msg.From(), msg.OriginalFrom()))
 			return nil
 		},
 	})
@@ -469,11 +469,11 @@ func InitCommands(c *Commands) {
 			isAway, _, _ := msg.From().GetAway()
 			msg.From().SetAway(awayMsg)
 			if awayMsg != "" {
-				room.Send(message.NewEmoteMsg("has gone away: "+awayMsg, msg.From()))
+				room.Send(message.NewEmoteMsg("has gone away: "+awayMsg, msg.From(), msg.OriginalFrom()))
 				return nil
 			}
 			if isAway {
-				room.Send(message.NewEmoteMsg("is back.", msg.From()))
+				room.Send(message.NewEmoteMsg("is back.", msg.From(), msg.OriginalFrom()))
 				return nil
 			}
 			return errors.New("not away. Append a reason message to set away")
@@ -487,7 +487,7 @@ func InitCommands(c *Commands) {
 			isAway, _, _ := msg.From().GetAway()
 			if isAway {
 				msg.From().SetAway("")
-				room.Send(message.NewEmoteMsg("is back.", msg.From()))
+				room.Send(message.NewEmoteMsg("is back.", msg.From(), msg.OriginalFrom()))
 				return nil
 			}
 			return errors.New("must be away to be back")
@@ -545,7 +545,7 @@ func InitCommands(c *Commands) {
 			}
 
 			user := message.NewUserDeterministic(message.SimpleID(match[1] + match[2]))
-			room.Send(message.NewPublicMsg(match[3], user))
+			room.Send(message.NewPublicMsg(match[3], user, msg.OriginalFrom()))
 
 			return nil
 		},

@@ -157,13 +157,13 @@ func (h *Host) Connect(term *sshd.Terminal) {
 				if e.Value != "1" {
 					cmd += " " + e.Value
 				}
-				if msg, ok := message.NewPublicMsg(cmd, user).ParseCommand(); ok {
+				if msg, ok := message.NewPublicMsg(cmd, user, user).ParseCommand(); ok {
 					h.Room.HandleMsg(msg)
 				}
 			}
 		case "SSHCHAT_THEME":
 			cmd := "/theme " + e.Value
-			if msg, ok := message.NewPublicMsg(cmd, user).ParseCommand(); ok {
+			if msg, ok := message.NewPublicMsg(cmd, user, user).ParseCommand(); ok {
 				h.Room.HandleMsg(msg)
 			}
 		}

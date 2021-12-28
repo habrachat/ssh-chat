@@ -22,10 +22,11 @@ type MessageTo interface {
 type MessageFrom interface {
 	Message
 	From() *User
+	OriginalFrom() *User
 }
 
 func ParseInput(body string, from *User) Message {
-	m := NewPublicMsg(body, from)
+	m := NewPublicMsg(body, from, from)
 	cmd, isCmd := m.ParseCommand()
 	if isCmd {
 		return cmd
@@ -70,20 +71,26 @@ func (m Msg) Timestamp() time.Time {
 type PublicMsg struct {
 	Msg
 	from *User
+	originalFrom *User
 }
 
-func NewPublicMsg(body string, from *User) PublicMsg {
+func NewPublicMsg(body string, from *User, originalFrom *User) PublicMsg {
 	return PublicMsg{
 		Msg: Msg{
 			body:      body,
 			timestamp: time.Now(),
 		},
 		from: from,
+		originalFrom: originalFrom,
 	}
 }
 
 func (m PublicMsg) From() *User {
 	return m.from
+}
+
+func (m PublicMsg) OriginalFrom() *User {
+	return m.originalFrom
 }
 
 func (m PublicMsg) ParseCommand() (*CommandMsg, bool) {
@@ -145,20 +152,26 @@ func (m PublicMsg) String() string {
 type EmoteMsg struct {
 	Msg
 	from *User
+	originalFrom *User
 }
 
-func NewEmoteMsg(body string, from *User) *EmoteMsg {
+func NewEmoteMsg(body string, from *User, originalFrom *User) *EmoteMsg {
 	return &EmoteMsg{
 		Msg: Msg{
 			body:      body,
 			timestamp: time.Now(),
 		},
 		from: from,
+		originalFrom: originalFrom,
 	}
 }
 
 func (m EmoteMsg) From() *User {
 	return m.from
+}
+
+func (m EmoteMsg) OriginalFrom() *User {
+	return m.originalFrom
 }
 
 func (m EmoteMsg) Render(t *Theme) string {
@@ -177,7 +190,7 @@ type PrivateMsg struct {
 
 func NewPrivateMsg(body string, from *User, to *User) PrivateMsg {
 	return PrivateMsg{
-		PublicMsg: NewPublicMsg(body, from),
+		PublicMsg: NewPublicMsg(body, from, from),
 		to:        to,
 	}
 }
@@ -188,6 +201,10 @@ func (m PrivateMsg) To() *User {
 
 func (m PrivateMsg) From() *User {
 	return m.from
+}
+
+func (m PrivateMsg) OriginalFrom() *User {
+	return m.originalFrom
 }
 
 func (m PrivateMsg) Render(t *Theme) string {
