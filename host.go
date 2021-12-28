@@ -198,11 +198,14 @@ func (h *Host) Connect(term *sshd.Terminal) {
 			break
 		}
 
-		err = ratelimit.Count(1)
-		if err != nil {
-			user.Send(message.NewSystemMsg("Message rejected: Rate limiting is in effect.", user))
-			continue
+		if !member.IsOp {
+			err = ratelimit.Count(1)
+			if err != nil {
+				user.Send(message.NewSystemMsg("Message rejected: Rate limiting is in effect.", user))
+				continue
+			}
 		}
+
 		if len(line) > maxInputLength {
 			user.Send(message.NewSystemMsg("Message rejected: Input too long.", user))
 			continue
