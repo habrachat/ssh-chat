@@ -5,6 +5,7 @@ package chat
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -522,6 +523,29 @@ func InitCommands(c *Commands) {
 			} else {
 				room.Send(message.NewSystemMsg("Unmuted: "+id, msg.From()))
 			}
+
+			return nil
+		},
+	})
+
+	c.Add(Command{
+		Op:         true,
+		Prefix:     "/impersonate",
+		PrefixHelp: "USER",
+		Help:       "Submit message as if by USER.",
+		Handler: func(room *Room, msg message.CommandMsg) error {
+			if !room.IsOp(msg.From()) {
+				return errors.New("must be op")
+			}
+
+			re := regexp.MustCompile("^/impersonate (\\S+) (.*)$")
+			match := re.FindStringSubmatch(msg.Body())
+			if match == nil {
+				return errors.New("must specify user and text")
+			}
+
+			user := message.NewUserDeterministic(message.SimpleID(match[1]))
+			room.Send(message.NewPublicMsg(match[2], user))
 
 			return nil
 		},

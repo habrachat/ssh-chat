@@ -102,16 +102,14 @@ func (r *Room) HandleMsg(m message.Message) {
 	}
 
 	if fromID != "" {
-		if item, err := r.Members.Get(fromID); err != nil {
-			// Message from a member who is not in the room, this should not happen.
-			logger.Printf("Room received unexpected message from a non-member: %v", m)
-			return
-		} else if member, ok := item.Value().(*Member); ok && member.IsMuted() {
-			// Short circuit message handling for muted users
-			if _, ok = m.(*message.CommandMsg); !ok {
-				member.User.Send(m)
+		if item, err := r.Members.Get(fromID); err == nil {
+			if member, ok := item.Value().(*Member); ok && member.IsMuted() {
+				// Short circuit message handling for muted users
+				if _, ok = m.(*message.CommandMsg); !ok {
+					member.User.Send(m)
+				}
+				return
 			}
-			return
 		}
 	}
 
