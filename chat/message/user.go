@@ -1,6 +1,8 @@
 package message
 
 import (
+	"crypto/sha1"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
@@ -55,6 +57,28 @@ func NewUser(identity Identifier) *User {
 
 	return &u
 }
+
+func NewUserDeterministic(identity Identifier) *User {
+	u := User{
+		Identifier: identity,
+		config:     DefaultUserConfig,
+		joined:     time.Now(),
+		msg:        make(chan Message, messageBuffer),
+		done:       make(chan struct{}),
+		Ignored:    set.New(),
+		Focused:    set.New(),
+	}
+
+	h := sha1.New()
+	h.Write([]byte(identity.ID()))
+	bs := h.Sum(nil)
+	idx := binary.BigEndian.Uint32(bs[:4])
+
+	u.setColorIdx(int(idx))
+
+	return &u
+}
+
 
 func NewUserScreen(identity Identifier, screen io.WriteCloser) *User {
 	u := NewUser(identity)
