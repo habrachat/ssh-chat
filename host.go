@@ -130,7 +130,7 @@ func (h *Host) Connect(term *sshd.Terminal) {
 
 	// Send MOTD
 	if motd != "" {
-		user.Send(message.NewAnnounceMsg(motd))
+		user.Send(message.NewMOTDMsg(motd))
 	}
 
 	member, err := h.Join(user)
