@@ -119,7 +119,7 @@ func (r *Room) HandleMsg(m message.Message) {
 		err := r.commands.Run(r, cmd)
 		if err != nil {
 			m := message.NewSystemMsg(fmt.Sprintf("Err: %s", err), cmd.From())
-			go r.HandleMsg(m)
+			r.HandleMsg(m)
 		}
 	case message.MessageTo:
 		user := m.To()
@@ -152,7 +152,7 @@ func (r *Room) HandleMsg(m message.Message) {
 // run in a goroutine.
 func (r *Room) Serve() {
 	for m := range r.broadcast {
-		go r.HandleMsg(m)
+		r.HandleMsg(m)
 	}
 }
 
