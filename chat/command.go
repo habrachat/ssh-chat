@@ -538,14 +538,14 @@ func InitCommands(c *Commands) {
 				return errors.New("must be op")
 			}
 
-			re := regexp.MustCompile("^/impersonate (\\S+) (.*)$")
+			re := regexp.MustCompile("^/impersonate (?:\"([^\"]+)\"|(\\S+)) (.*)$")
 			match := re.FindStringSubmatch(msg.Body())
 			if match == nil {
 				return errors.New("must specify user and text")
 			}
 
-			user := message.NewUserDeterministic(message.SimpleID(match[1]))
-			room.Send(message.NewPublicMsg(match[2], user))
+			user := message.NewUserDeterministic(message.SimpleID(match[1] + match[2]))
+			room.Send(message.NewPublicMsg(match[3], user))
 
 			return nil
 		},
