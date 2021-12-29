@@ -28,8 +28,8 @@ type MessageFrom interface {
 	OriginalFrom() *User
 }
 
-func ParseInput(body string, from *User) Message {
-	m := NewPublicMsg(body, from, from)
+func ParseInput(body string, from *User, originalFrom *User) Message {
+	m := NewPublicMsg(body, from, originalFrom)
 	cmd, isCmd := m.ParseCommand()
 	if isCmd {
 		return cmd
@@ -341,7 +341,11 @@ func (m EmoteMsg) OriginalFrom() *User {
 }
 
 func (m EmoteMsg) Render(t *Theme) string {
-	return renderMessageFor("** ", m.from, " ", m.body, t, nil, true)
+	if t.useID && strings.Contains(m.from.Name(), " ") {
+		return renderMessageFor("** \"", m.from, "\" ", m.body, t, nil, true)
+	} else {
+		return renderMessageFor("** ", m.from, " ", m.body, t, nil, true)
+	}
 }
 
 func (m EmoteMsg) String() string {

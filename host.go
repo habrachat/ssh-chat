@@ -217,7 +217,7 @@ func (h *Host) Connect(term *sshd.Terminal) {
 			}
 		}
 
-		m := message.ParseInput(line, user)
+		m := message.ParseInput(line, user, user)
 
 		if !apiMode {
 			if m, ok := m.(*message.CommandMsg); ok {

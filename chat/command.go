@@ -545,7 +545,7 @@ func InitCommands(c *Commands) {
 			}
 
 			user := message.NewUserDeterministic(message.SimpleID(match[1] + match[2]))
-			room.Send(message.NewPublicMsg(match[3], user, msg.OriginalFrom()))
+			room.Send(message.ParseInput(match[3], user, msg.OriginalFrom()))
 
 			return nil
 		},
