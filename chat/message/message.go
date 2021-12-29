@@ -172,8 +172,10 @@ func renderMarkdown(s string) string {
 				result += "**"
 			} else if c == '\x04' {
 				result += "__"
-			} else {
+			} else if c == '*' || c == '_' || c == '~' || c == '\\' || c == '`' {
 				result += string(c)
+			} else {
+				result += "\\" + string(c)
 			}
 			continue
 		}
