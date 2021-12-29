@@ -199,22 +199,22 @@ func (h *Host) Connect(term *sshd.Terminal) {
 			break
 		}
 
+		if len(line) > maxInputLength {
+			user.Send(message.NewSystemMsg("Message rejected: Input too long.", user))
+			continue
+		}
+		if strings.TrimSpace(line) == "" {
+			// Silently ignore empty lines.
+			term.Write([]byte{})
+			continue
+		}
+
 		if !member.IsOp {
 			err = ratelimit.Count(1)
 			if err != nil {
 				user.Send(message.NewSystemMsg("Message rejected: Rate limiting is in effect.", user))
 				continue
 			}
-		}
-
-		if len(line) > maxInputLength {
-			user.Send(message.NewSystemMsg("Message rejected: Input too long.", user))
-			continue
-		}
-		if line == "" {
-			// Silently ignore empty lines.
-			term.Write([]byte{})
-			continue
 		}
 
 		m := message.ParseInput(line, user)
