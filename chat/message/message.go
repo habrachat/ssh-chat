@@ -111,37 +111,34 @@ func (m PublicMsg) ParseCommand() (*CommandMsg, bool) {
 	return &msg, true
 }
 
-func (m PublicMsg) Render(t *Theme) string {
-	if t == nil {
-		return m.String()
-	}
 
-	return fmt.Sprintf("%s: %s", t.ColorName(m.from), m.body)
+func renderMessageFor(prefix string, u *User, sep string, body string, t *Theme, cfg *UserConfig) string {
+	if t != nil && cfg != nil {
+		body = cfg.Highlight.ReplaceAllString(body, t.Highlight("${1}"))
+		if cfg.Bell {
+			body += Bel
+		}
+	}
+	if t == nil {
+		return prefix + u.Name() + sep + body
+	} else {
+		return prefix + t.ColorName(u) + sep + body
+	}
+}
+
+
+func (m PublicMsg) Render(t *Theme) string {
+	return renderMessageFor("", m.from, ": ", m.body, t, nil)
 }
 
 // RenderFor renders the message for other users to see.
 func (m PublicMsg) RenderFor(cfg UserConfig) string {
-	if cfg.Highlight == nil || cfg.Theme == nil {
-		return m.Render(cfg.Theme)
-	}
-
-	if !cfg.Highlight.MatchString(m.body) {
-		return m.Render(cfg.Theme)
-	}
-
-	body := cfg.Highlight.ReplaceAllString(m.body, cfg.Theme.Highlight("${1}"))
-	if cfg.Bell {
-		body += Bel
-	}
-	return fmt.Sprintf("%s: %s", cfg.Theme.ColorName(m.from), body)
+	return renderMessageFor("", m.from, ": ", m.body, cfg.Theme, &cfg)
 }
 
 // RenderSelf renders the message for when it's echoing your own message.
 func (m PublicMsg) RenderSelf(cfg UserConfig) string {
-	if cfg.Theme == nil {
-		return fmt.Sprintf("[%s] %s", m.from.Name(), m.body)
-	}
-	return fmt.Sprintf("[%s] %s", cfg.Theme.ColorName(m.from), m.body)
+	return renderMessageFor("[", m.from, "] ", m.body, cfg.Theme, nil)
 }
 
 func (m PublicMsg) String() string {
@@ -175,7 +172,7 @@ func (m EmoteMsg) OriginalFrom() *User {
 }
 
 func (m EmoteMsg) Render(t *Theme) string {
-	return fmt.Sprintf("** %s %s", m.from.Name(), m.body)
+	return renderMessageFor("** ", m.from, " ", m.body, t, nil)
 }
 
 func (m EmoteMsg) String() string {
@@ -208,11 +205,7 @@ func (m PrivateMsg) OriginalFrom() *User {
 }
 
 func (m PrivateMsg) Render(t *Theme) string {
-	s := fmt.Sprintf("[PM from %s] %s", m.from.Name(), m.body)
-	if t == nil {
-		return s
-	}
-	return t.ColorPM(s)
+	return renderMessageFor("[PM from ", m.from, "] ", m.body, t, nil)
 }
 
 func (m PrivateMsg) String() string {
