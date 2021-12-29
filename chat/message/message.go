@@ -170,11 +170,11 @@ func renderMarkdown(s string) string {
 }
 
 
-func renderMessageFor(prefix string, u *User, sep string, body string, t *Theme, cfg *UserConfig) string {
+func renderMessageFor(prefix string, u *User, sep string, body string, t *Theme, cfg *UserConfig, doHighlight bool) string {
 	if cfg != nil && !cfg.ApiMode {
 		body = renderMarkdown(body)
 	}
-	if t != nil && cfg != nil {
+	if t != nil && cfg != nil && doHighlight {
 		newBody := cfg.Highlight.ReplaceAllString(body, t.Highlight("${1}"))
 		if newBody != body {
 			body = newBody
@@ -192,17 +192,17 @@ func renderMessageFor(prefix string, u *User, sep string, body string, t *Theme,
 
 
 func (m PublicMsg) Render(t *Theme) string {
-	return renderMessageFor("", m.from, ": ", m.body, t, nil)
+	return renderMessageFor("", m.from, ": ", m.body, t, nil, true)
 }
 
 // RenderFor renders the message for other users to see.
 func (m PublicMsg) RenderFor(cfg UserConfig) string {
-	return renderMessageFor("", m.from, ": ", m.body, cfg.Theme, &cfg)
+	return renderMessageFor("", m.from, ": ", m.body, cfg.Theme, &cfg, true)
 }
 
 // RenderSelf renders the message for when it's echoing your own message.
 func (m PublicMsg) RenderSelf(cfg UserConfig) string {
-	return renderMessageFor("[", m.from, "] ", m.body, cfg.Theme, &cfg)
+	return renderMessageFor("[", m.from, "] ", m.body, cfg.Theme, &cfg, false)
 }
 
 func (m PublicMsg) String() string {
@@ -236,7 +236,7 @@ func (m EmoteMsg) OriginalFrom() *User {
 }
 
 func (m EmoteMsg) Render(t *Theme) string {
-	return renderMessageFor("** ", m.from, " ", m.body, t, nil)
+	return renderMessageFor("** ", m.from, " ", m.body, t, nil, true)
 }
 
 func (m EmoteMsg) String() string {
@@ -269,7 +269,7 @@ func (m PrivateMsg) OriginalFrom() *User {
 }
 
 func (m PrivateMsg) Render(t *Theme) string {
-	return renderMessageFor("[PM from ", m.from, "] ", m.body, t, nil)
+	return renderMessageFor("[PM from ", m.from, "] ", m.body, t, nil, true)
 }
 
 func (m PrivateMsg) String() string {
