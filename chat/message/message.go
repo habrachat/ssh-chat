@@ -2,8 +2,11 @@ package message
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
+
+	"github.com/kenshaw/emoji"
 )
 
 // Message is an interface for messages.
@@ -111,37 +114,92 @@ func (m PublicMsg) ParseCommand() (*CommandMsg, bool) {
 	return &msg, true
 }
 
-func (m PublicMsg) Render(t *Theme) string {
-	if t == nil {
-		return m.String()
-	}
 
-	return fmt.Sprintf("%s: %s", t.ColorName(m.from), m.body)
+func renderMarkdown(s string) string {
+	s = emoji.ReplaceAliases(s)
+
+	re := regexp.MustCompile(`\[([^\]]+)\]\(([^) ]+)\)`)
+	s = re.ReplaceAllString(s, "\x01\x1b]8;;$2\x1b\\\x02$1\x01\x1b]8;;\x1b\\\x02")
+
+	result := ""
+	is_bold := false
+	is_italic := false
+	inside_backslash := false
+	inside_escape := false
+	for i, c := range s {
+		if inside_escape {
+			if c == '\x02' {
+				inside_escape = false
+			} else {
+				result += string(c)
+			}
+			continue
+		}
+		if c == '\x01' {
+			inside_escape = true
+			continue
+		}
+		if inside_backslash {
+			inside_backslash = false
+			result += string(c)
+			continue
+		}
+		if c == '\\' {
+			inside_backslash = true
+		} else if c == '*' && !is_bold && (i == 0 || s[i - 1] == ' ') && (i + 1 < len(s) && s[i + 1] != ' ') {
+			result += "\x1b[1m"
+			is_bold = true
+		} else if c == '*' && is_bold && (i > 0 && s[i - 1] != ' ') && (i + 1 == len(s) || s[i + 1] == ' ') {
+			result += "\x1b[22m"
+			is_bold = false
+		} else if c == '_' && !is_italic && (i == 0 || s[i - 1] == ' ') && (i + 1 < len(s) && s[i + 1] != ' ') {
+			result += "\x1b[3m"
+			is_italic = true
+		} else if c == '_' && is_italic && (i > 0 && s[i - 1] != ' ') && (i + 1 == len(s) || s[i + 1] == ' ') {
+			result += "\x1b[23m"
+			is_italic = false
+		} else {
+			result += string(c)
+		}
+	}
+	if inside_backslash {
+		result += "\\"
+	}
+	result += "\x1b[0m"
+	return result
+}
+
+
+func renderMessageFor(prefix string, u *User, sep string, body string, t *Theme, cfg *UserConfig) string {
+	if cfg != nil && !cfg.ApiMode {
+		body = renderMarkdown(body)
+	}
+	if t != nil && cfg != nil {
+		body = cfg.Highlight.ReplaceAllString(body, t.Highlight("${1}"))
+		if cfg.Bell {
+			body += Bel
+		}
+	}
+	if t == nil {
+		return prefix + u.Name() + sep + body
+	} else {
+		return prefix + t.ColorName(u) + sep + body
+	}
+}
+
+
+func (m PublicMsg) Render(t *Theme) string {
+	return renderMessageFor("", m.from, ": ", m.body, t, nil)
 }
 
 // RenderFor renders the message for other users to see.
 func (m PublicMsg) RenderFor(cfg UserConfig) string {
-	if cfg.Highlight == nil || cfg.Theme == nil {
-		return m.Render(cfg.Theme)
-	}
-
-	if !cfg.Highlight.MatchString(m.body) {
-		return m.Render(cfg.Theme)
-	}
-
-	body := cfg.Highlight.ReplaceAllString(m.body, cfg.Theme.Highlight("${1}"))
-	if cfg.Bell {
-		body += Bel
-	}
-	return fmt.Sprintf("%s: %s", cfg.Theme.ColorName(m.from), body)
+	return renderMessageFor("", m.from, ": ", m.body, cfg.Theme, &cfg)
 }
 
 // RenderSelf renders the message for when it's echoing your own message.
 func (m PublicMsg) RenderSelf(cfg UserConfig) string {
-	if cfg.Theme == nil {
-		return fmt.Sprintf("[%s] %s", m.from.Name(), m.body)
-	}
-	return fmt.Sprintf("[%s] %s", cfg.Theme.ColorName(m.from), m.body)
+	return renderMessageFor("[", m.from, "] ", m.body, cfg.Theme, &cfg)
 }
 
 func (m PublicMsg) String() string {
@@ -175,7 +233,7 @@ func (m EmoteMsg) OriginalFrom() *User {
 }
 
 func (m EmoteMsg) Render(t *Theme) string {
-	return fmt.Sprintf("** %s %s", m.from.Name(), m.body)
+	return renderMessageFor("** ", m.from, " ", m.body, t, nil)
 }
 
 func (m EmoteMsg) String() string {
@@ -208,11 +266,7 @@ func (m PrivateMsg) OriginalFrom() *User {
 }
 
 func (m PrivateMsg) Render(t *Theme) string {
-	s := fmt.Sprintf("[PM from %s] %s", m.from.Name(), m.body)
-	if t == nil {
-		return s
-	}
-	return t.ColorPM(s)
+	return renderMessageFor("[PM from ", m.from, "] ", m.body, t, nil)
 }
 
 func (m PrivateMsg) String() string {
