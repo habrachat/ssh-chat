@@ -299,6 +299,7 @@ type UserConfig struct {
 	Bell       bool
 	Quiet      bool
 	Echo       bool // Echo shows your own messages after sending, disabled for bots
+	ApiMode    bool
 	Timeformat *string
 	Timezone   *time.Location
 	Theme      *Theme

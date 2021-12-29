@@ -110,6 +110,7 @@ func (h *Host) Connect(term *sshd.Terminal) {
 	if apiMode {
 		cfg.Theme = message.MonoTheme
 		cfg.Echo = false
+		cfg.ApiMode = true
 	} else {
 		term.SetEnterClear(true) // We provide our own echo rendering
 		cfg.Theme = &h.theme
