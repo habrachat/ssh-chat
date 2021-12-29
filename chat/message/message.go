@@ -183,7 +183,7 @@ func renderMarkdown(s string) string {
 			continue
 		}
 
-		if c == '`' && (i == 0 || s[i - 1] == ' ') {
+		if c == '`' && (i == 0 || s[i - 1] == ' ') && (i + 1 < len(s) && s[i + 1] != '`') {
 			is_code = true
 			result += "\x1b[48;5;22m"
 			continue
