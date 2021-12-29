@@ -250,14 +250,16 @@ func (u *User) render(m Message) string {
 			out += Bel
 		}
 	case *CommandMsg:
-		if !cfg.Echo {
+		if u == m.OriginalFrom() && !cfg.Echo {
 			return ""
 		}
 		out += m.RenderSelf(cfg)
-	default:
-		if !cfg.Echo {
+	case MessageFrom:
+		if u == m.OriginalFrom() && !cfg.Echo {
 			return ""
 		}
+		out += m.Render(cfg.Theme)
+	default:
 		out += m.Render(cfg.Theme)
 	}
 	if cfg.Timeformat != nil {
