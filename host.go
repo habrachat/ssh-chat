@@ -210,7 +210,7 @@ func (h *Host) Connect(term *sshd.Terminal) {
 			user.Send(message.NewSystemMsg("Message rejected: Input too long.", user))
 			continue
 		}
-		if line == "" {
+		if strings.TrimSpace(line) == "" {
 			// Silently ignore empty lines.
 			term.Write([]byte{})
 			continue
