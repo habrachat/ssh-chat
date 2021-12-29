@@ -146,16 +146,16 @@ func renderMarkdown(s string) string {
 		}
 		if c == '\\' {
 			inside_backslash = true
-		} else if c == '*' && !is_bold && (i == 0 || s[i - 1] == ' ') && (i + 1 < len(s) && s[i + 1] != ' ') {
+		} else if c == '*' && !is_bold && (i == 0 || s[i - 1] == ' ') && (i + 1 < len(s) && s[i + 1] != ' ' && s[i + 1] != '*') {
 			result += "\x1b[1m"
 			is_bold = true
-		} else if c == '*' && is_bold && (i > 0 && s[i - 1] != ' ') && (i + 1 == len(s) || s[i + 1] == ' ') {
+		} else if c == '*' && is_bold && (i > 0 && s[i - 1] != ' ' && s[i - 1] != '*') && (i + 1 == len(s) || s[i + 1] == ' ') {
 			result += "\x1b[22m"
 			is_bold = false
-		} else if c == '_' && !is_italic && (i == 0 || s[i - 1] == ' ') && (i + 1 < len(s) && s[i + 1] != ' ') {
+		} else if c == '_' && !is_italic && (i == 0 || s[i - 1] == ' ') && (i + 1 < len(s) && s[i + 1] != ' ' && s[i + 1] != '_') {
 			result += "\x1b[3m"
 			is_italic = true
-		} else if c == '_' && is_italic && (i > 0 && s[i - 1] != ' ') && (i + 1 == len(s) || s[i + 1] == ' ') {
+		} else if c == '_' && is_italic && (i > 0 && s[i - 1] != ' ' && s[i - 1] != '_') && (i + 1 == len(s) || s[i + 1] == ' ') {
 			result += "\x1b[23m"
 			is_italic = false
 		} else {
