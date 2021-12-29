@@ -173,13 +173,13 @@ func renderMarkdown(s string) string {
 func renderMessageFor(prefix string, u *User, sep string, body string, t *Theme, cfg *UserConfig, doHighlight bool) string {
 	if cfg != nil && !cfg.ApiMode {
 		body = renderMarkdown(body)
-	}
-	if t != nil && cfg != nil && doHighlight {
-		newBody := cfg.Highlight.ReplaceAllString(body, t.Highlight("${1}"))
-		if newBody != body {
-			body = newBody
-			if cfg.Bell {
-				body += Bel
+		if t != nil && doHighlight {
+			newBody := cfg.Highlight.ReplaceAllString(body, t.Highlight("${1}"))
+			if newBody != body {
+				body = newBody
+				if cfg.Bell {
+					body += Bel
+				}
 			}
 		}
 	}

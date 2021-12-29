@@ -233,7 +233,11 @@ func (u *User) render(m Message) string {
 			if !cfg.Echo {
 				return ""
 			}
-			out += m.RenderSelf(cfg)
+			if u == m.From() {
+				out += m.RenderSelf(cfg)
+			} else {
+				out += m.RenderFor(cfg)
+			}
 		} else if u.Focused.Len() > 0 && !u.Focused.In(m.From().ID()) {
 			// Skip message during focus
 			return ""
