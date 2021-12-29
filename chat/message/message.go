@@ -28,8 +28,8 @@ type MessageFrom interface {
 	OriginalFrom() *User
 }
 
-func ParseInput(body string, from *User) Message {
-	m := NewPublicMsg(body, from, from)
+func ParseInput(body string, from *User, originalFrom *User) Message {
+	m := NewPublicMsg(body, from, originalFrom)
 	cmd, isCmd := m.ParseCommand()
 	if isCmd {
 		return cmd
