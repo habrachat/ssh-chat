@@ -175,9 +175,12 @@ func renderMessageFor(prefix string, u *User, sep string, body string, t *Theme,
 		body = renderMarkdown(body)
 	}
 	if t != nil && cfg != nil {
-		body = cfg.Highlight.ReplaceAllString(body, t.Highlight("${1}"))
-		if cfg.Bell {
-			body += Bel
+		newBody := cfg.Highlight.ReplaceAllString(body, t.Highlight("${1}"))
+		if newBody != body {
+			body = newBody
+			if cfg.Bell {
+				body += Bel
+			}
 		}
 	}
 	if t == nil {
