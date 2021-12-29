@@ -127,9 +127,13 @@ func renderMarkdown(s string) string {
 	re = regexp.MustCompile(`__`)
 	s = re.ReplaceAllString(s, "\x04")
 
+	re = regexp.MustCompile(`~~`)
+	s = re.ReplaceAllString(s, "\x05")
+
 	result := ""
 	is_bold := false
 	is_italic := false
+	is_strikethrough := false
 	is_code := false
 	inside_backslash := false
 	inside_escape := false
@@ -182,6 +186,17 @@ func renderMarkdown(s string) string {
 		if c == '`' && (i == 0 || s[i - 1] == ' ') {
 			is_code = true
 			result += "\x1b[48;5;22m"
+			continue
+		}
+
+		if c == '\x05' {
+			if !is_strikethrough {
+				is_strikethrough = true
+				result += "\x1b[9m"
+			} else {
+				is_strikethrough = false
+				result += "\x1b[29m"
+			}
 			continue
 		}
 
