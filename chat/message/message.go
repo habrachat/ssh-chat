@@ -121,15 +121,31 @@ func renderMarkdown(s string) string {
 	re := regexp.MustCompile(`\[([^\]]+)\]\(([^) ]+)\)`)
 	s = re.ReplaceAllString(s, "\x01\x1b]8;;$2\x1b\\\x02$1\x01\x1b]8;;\x1b\\\x02")
 
+	re = regexp.MustCompile(`\*\*`)
+	s = re.ReplaceAllString(s, "\x03")
+
+	re = regexp.MustCompile(`__`)
+	s = re.ReplaceAllString(s, "\x04")
+
+	re = regexp.MustCompile(`~~`)
+	s = re.ReplaceAllString(s, "\x05")
+
 	result := ""
 	is_bold := false
 	is_italic := false
+	is_strikethrough := false
+	is_code := false
 	inside_backslash := false
 	inside_escape := false
+
 	for i, c := range s {
 		if inside_escape {
 			if c == '\x02' {
 				inside_escape = false
+			} else if c == '\x03' {
+				result += "**"
+			} else if c == '\x04' {
+				result += "__"
 			} else {
 				result += string(c)
 			}
@@ -139,25 +155,112 @@ func renderMarkdown(s string) string {
 			inside_escape = true
 			continue
 		}
-		if inside_backslash {
-			inside_backslash = false
-			result += string(c)
+
+		if is_code {
+			if c == '`' {
+				result += "\x1b[49m"
+				is_code = false
+			} else {
+				result += string(c)
+			}
 			continue
 		}
+
+		if inside_backslash {
+			inside_backslash = false
+			if c == '\x03' {
+				result += "**"
+			} else if c == '\x04' {
+				result += "__"
+			} else {
+				result += string(c)
+			}
+			continue
+		}
+
 		if c == '\\' {
 			inside_backslash = true
-		} else if c == '*' && !is_bold && (i == 0 || s[i - 1] == ' ') && (i + 1 < len(s) && s[i + 1] != ' ' && s[i + 1] != '*') {
-			result += "\x1b[1m"
-			is_bold = true
-		} else if c == '*' && is_bold && (i > 0 && s[i - 1] != ' ' && s[i - 1] != '*') && (i + 1 == len(s) || s[i + 1] == ' ') {
-			result += "\x1b[22m"
-			is_bold = false
-		} else if c == '_' && !is_italic && (i == 0 || s[i - 1] == ' ') && (i + 1 < len(s) && s[i + 1] != ' ' && s[i + 1] != '_') {
-			result += "\x1b[3m"
-			is_italic = true
-		} else if c == '_' && is_italic && (i > 0 && s[i - 1] != ' ' && s[i - 1] != '_') && (i + 1 == len(s) || s[i + 1] == ' ') {
-			result += "\x1b[23m"
-			is_italic = false
+			continue
+		}
+
+		if c == '`' && (i == 0 || s[i - 1] == ' ') {
+			is_code = true
+			result += "\x1b[48;5;22m"
+			continue
+		}
+
+		if c == '\x05' {
+			if !is_strikethrough {
+				is_strikethrough = true
+				result += "\x1b[9m"
+			} else {
+				is_strikethrough = false
+				result += "\x1b[29m"
+			}
+			continue
+		}
+
+		is_prev_whitespace := i == 0 || s[i - 1] == ' ' || s[i - 1] == '.' || s[i - 1] == ',' || s[i - 1] == ';' || s[i - 1] == ':'
+		is_next_whitespace := i + 1 == len(s) || s[i + 1] == ' ' || s[i + 1] == '.' || s[i + 1] == ',' || s[i + 1] == ';' || s[i + 1] == ':'
+
+		if c == '\x03' || c == '\x04' {
+			if !is_bold {
+				if i > 0 && (s[i - 1] == '*' || s[i - 1] == '_') {
+					is_prev_whitespace = true
+				}
+				if i + 1 < len(s) && (s[i + 1] == '\x03' || s[i + 1] == '\x04') {
+					is_next_whitespace = true
+				}
+				if is_prev_whitespace && !is_next_whitespace {
+					result += "\x1b[1m"
+					is_bold = true
+					continue
+				}
+			} else {
+				if i > 0 && (s[i - 1] == '\x03' || s[i - 1] == '\x04') {
+					is_prev_whitespace = true
+				}
+				if i + 1 < len(s) && (s[i + 1] == '*' || s[i + 1] == '_') {
+					is_next_whitespace = true
+				}
+				if !is_prev_whitespace && is_next_whitespace {
+					result += "\x1b[22m"
+					is_bold = false
+					continue
+				}
+			}
+		} else if c == '*' || c == '_' {
+			if !is_italic {
+				if i > 0 && (s[i - 1] == '\x03' || s[i - 1] == '\x04') {
+					is_prev_whitespace = true
+				}
+				if i + 1 < len(s) && (s[i + 1] == '*' || s[i + 1] == '_') {
+					is_next_whitespace = true
+				}
+				if is_prev_whitespace && !is_next_whitespace {
+					result += "\x1b[3m"
+					is_italic = true
+					continue
+				}
+			} else {
+				if i > 0 && (s[i - 1] == '*' || s[i - 1] == '_') {
+					is_prev_whitespace = true
+				}
+				if i + 1 < len(s) && (s[i + 1] == '\x03' || s[i + 1] == '\x04') {
+					is_next_whitespace = true
+				}
+				if !is_prev_whitespace && is_next_whitespace {
+					result += "\x1b[23m"
+					is_italic = false
+					continue
+				}
+			}
+		}
+
+		if c == '\x03' {
+			result += "**"
+		} else if c == '\x04' {
+			result += "__"
 		} else {
 			result += string(c)
 		}
