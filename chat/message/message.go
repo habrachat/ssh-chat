@@ -339,7 +339,11 @@ func (m EmoteMsg) OriginalFrom() *User {
 }
 
 func (m EmoteMsg) Render(t *Theme) string {
-	return renderMessageFor("** ", m.from, " ", m.body, t, nil, true)
+	if t.useID && strings.Contains(m.from.Name(), " ") {
+		return renderMessageFor("** \"", m.from, "\" ", m.body, t, nil, true)
+	} else {
+		return renderMessageFor("** ", m.from, " ", m.body, t, nil, true)
+	}
 }
 
 func (m EmoteMsg) String() string {
