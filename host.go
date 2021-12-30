@@ -664,6 +664,9 @@ func (h *Host) InitCommands(c *chat.Commands) {
 			symbolSet := false
 			if len(args) == 3 {
 				s := args[2]
+				if s == "remove" {
+					s = ""
+				}
 				if id, ok := member.Identifier.(*Identity); ok {
 					id.SetSymbol(s)
 				} else {
