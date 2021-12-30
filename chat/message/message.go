@@ -160,6 +160,10 @@ func renderMarkdown(s string) string {
 			if c == '`' {
 				result += "\x1b[49m"
 				is_code = false
+			} else if c == '\x03' {
+				result += "**"
+			} else if c == '\x04' {
+				result += "__"
 			} else {
 				result += string(c)
 			}
