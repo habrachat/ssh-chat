@@ -16,11 +16,11 @@ Join the party:
 $ ssh ssh.chat
 ```
 
-Please abide by our [project's Code of Conduct](https://github.com/shazow/ssh-chat/blob/master/CODE_OF_CONDUCT.md) while participating in chat.
+Please abide by our [project’s Code of Conduct](https://github.com/shazow/ssh-chat/blob/master/CODE_OF_CONDUCT.md) while participating in chat.
 
-The host's public key is `ssh.chat ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKPrQofxXqoz2y9A7NFkkENt6iW8/mvpfes3RY/41Oyt` and the fingerprint is `SHA256:yoqMXkCysMTBsvhu2yRoMUl+EmZKlvkN+ZKmL3115xU` (as of 2021-10-13).
+The host’s public key is `ssh.chat ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKPrQofxXqoz2y9A7NFkkENt6iW8/mvpfes3RY/41Oyt` and the fingerprint is `SHA256:yoqMXkCysMTBsvhu2yRoMUl+EmZKlvkN+ZKmL3115xU` (as of 2021-10-13).
 
-If you see something different, you might be [MITM](https://en.wikipedia.org/wiki/Man-in-the-middle_attack)'d.
+If you see something different, you might be [MITM](https://en.wikipedia.org/wiki/Man-in-the-middle_attack)’d.
 
 (Apologies if the server is down, try again shortly.)
 
@@ -37,12 +37,12 @@ Play around with it. Additional [deploy examples are here](https://github.com/sh
 
 ## Compiling / Developing
 
-Most people just want the [latest binary release](https://github.com/shazow/ssh-chat/releases/). If you're sure you want to compile it from source, read on:
+Most people just want the [latest binary release](https://github.com/shazow/ssh-chat/releases/). If you’re sure you want to compile it from source, read on:
 
 You can compile ssh-chat by using `make build`. The resulting binary is portable and
 can be run on any system with a similar OS and CPU arch. Go 1.8 or higher is required to compile.
 
-If you're developing on this repo, there is a handy Makefile that should set
+If you’re developing on this repo, there is a handy Makefile that should set
 things up with `make run`.
 
 Additionally, `make debug` runs the server with an http `pprof` server. This allows you to open
@@ -78,12 +78,12 @@ to run a command like:
 $ ssh-chat --verbose --bind ":22" --identity ~/.ssh/id_dsa
 ```
 
-To bind on port 22, you'll need to make sure it's free (move any other ssh
+To bind on port 22, you’ll need to make sure it’s free (move any other ssh
 daemons to another port) and run ssh-chat as root (or with sudo).
 
 ## Frequently Asked Questions
 
-The FAQs can be found on the project's [Wiki page](https://github.com/shazow/ssh-chat/wiki/FAQ).
+The FAQs can be found on the project’s [Wiki page](https://github.com/shazow/ssh-chat/wiki/FAQ).
 Feel free to submit more questions to be answered and added to the page.
 
 ## License
