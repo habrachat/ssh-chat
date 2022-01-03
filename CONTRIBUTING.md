@@ -23,7 +23,7 @@ For feature requests, use the search bar to look up if a feature you want has al
 
 ### Submitting Code
 
-Submitting code is another way to contribute. The best way to start contributing code would be to look at all the open Issues and see if you can find an interesting bug to tackle. Or if there's a feature you want to implement, check if an Issue was opened for it, or even submit the feature request yourself to open up a discussion.
+Submitting code is another way to contribute. The best way to start contributing code would be to look at all the open Issues and see if you can find an interesting bug to tackle. Or if there’s a feature you want to implement, check if an Issue was opened for it, or even submit the feature request yourself to open up a discussion.
 
 When submitting code, you should, in your commit message, refer to which issue you are working on. That way when the issue is resolved, or if future bugs are introduced because of it, we can refer to the pull request made and try to fix any bugs.
 
@@ -37,7 +37,7 @@ If the code meets these conditions, then it will be merged into the `master` bra
 
 ### Discussion Channels
 
-Development discussion of `ssh-chat` can be found on Shazow's public `ssh-chat` server. Connect using any `ssh` client with the following:
+Development discussion of `ssh-chat` can be found on Shazow’s public `ssh-chat` server. Connect using any `ssh` client with the following:
 
 ```bash
 $ ssh username@chat.shazow.net
