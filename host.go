@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/kenshaw/emoji"
 	"github.com/shazow/rateio"
 	"github.com/shazow/ssh-chat/chat"
 	"github.com/shazow/ssh-chat/chat/message"
@@ -250,6 +251,17 @@ func (h *Host) Serve() {
 	h.listener.Serve()
 }
 
+func (h *Host) completeEmoji(partial string) string {
+	for _, emoji := range emoji.Gemoji() {
+		for _, alias := range emoji.Aliases {
+			if strings.HasPrefix(alias, partial) {
+				return alias
+			}
+		}
+	}
+	return ""
+}
+
 func (h *Host) completeName(partial string, skipName string) string {
 	names := h.NamesPrefix(partial)
 	if len(names) == 0 {
@@ -310,6 +322,13 @@ func (h *Host) AutoCompleteFunction(u *message.User) func(line string, pos int, 
 					}
 				}
 			}
+		} else if strings.HasPrefix(partial, ":") {
+			// Emoji
+			completed = h.completeEmoji(partial[1:])
+			if completed == "" {
+				return
+			}
+			completed = ":" + completed + ":"
 		} else {
 			// Name
 			completed = h.completeName(partial, u.Name())
