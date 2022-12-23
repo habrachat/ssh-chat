@@ -34,6 +34,9 @@ func ParseInput(body string, from *User, originalFrom *User) Message {
 	if isCmd {
 		return cmd
 	}
+	if strings.HasPrefix(strings.TrimLeft(m.body, " "), "/") {
+		m.body = m.body[1:]
+	}
 	return m
 }
 
