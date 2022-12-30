@@ -3,7 +3,7 @@ package sanitize
 import "regexp"
 
 var (
-	reStripName = regexp.MustCompile("[^\\w.-]")
+	reStripName = regexp.MustCompile("[^\\w.+-]")
 	reStripData = regexp.MustCompile("[^[:ascii:]]|[[:cntrl:]]")
 )
 
