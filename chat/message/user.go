@@ -245,7 +245,7 @@ func (u *User) render(m Message) string {
 			out += m.RenderFor(cfg)
 		}
 	case *PrivateMsg:
-		out += m.Render(cfg.Theme)
+		out += m.RenderFor(cfg)
 		if cfg.Bell {
 			out += Bel
 		}

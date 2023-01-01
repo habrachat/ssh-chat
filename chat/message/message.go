@@ -388,6 +388,10 @@ func (m PrivateMsg) Render(t *Theme) string {
 	return renderMessageFor("[PM from ", m.from, "] ", m.body, t, nil, true)
 }
 
+func (m PrivateMsg) RenderFor(cfg UserConfig) string {
+	return renderMessageFor("[PM from ", m.from, "] ", m.body, cfg.Theme, &cfg, true)
+}
+
 func (m PrivateMsg) String() string {
 	return m.Render(nil)
 }
