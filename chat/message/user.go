@@ -210,7 +210,7 @@ func (u *User) HasMessages() bool {
 
 // SetHighlight sets the highlighting regular expression to match string.
 func (u *User) SetHighlight(s string) error {
-	re, err := regexp.Compile(fmt.Sprintf(reHighlight, s))
+	re, err := regexp.Compile(fmt.Sprintf(reHighlight, regexp.QuoteMeta(s)))
 	if err != nil {
 		return err
 	}
